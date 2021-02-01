@@ -15,6 +15,11 @@ mv gf-cli gf
 sudo chmod 777 gf 
 mv gf /usr/local/bin/
 ````
+或者
+````shell
+cd ${GOPATH}/pkg/mod/github.com/ && rm -rf gf-cli && git clone https://github.com/kotlin2018/gf-cli.git && cd gf-cli && go get && go build && mv gf-cli gf && sudo chmod 777 gf 
+mv gf /usr/local/bin/
+````
 ## B、使用试例
 ````shell
 gf new test
