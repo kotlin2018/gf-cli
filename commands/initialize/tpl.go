@@ -677,9 +677,9 @@ func (d *UserDao) Data(data ...interface{}) *UserDao {
 	return &UserDao{M: d.M.Data(data...)}
 }
 
-// Delete 用于数据的永久删除，被删除的数据不可恢复，请慎重使用。
+// Remove 数据的软删除。
 // 往往需要结合Where、Order、Limit等方法共同使用，也可以直接给Delete方法传递where参数。
-func (d *UserDao) Delete(data ...interface{}) (sql.Result, error) {
+func (d *UserDao) Remove(data ...interface{}) (sql.Result, error) {
 	res, err := d.M.Unscoped().Delete(data...)
     if err !=nil {
         return nil, err
@@ -786,8 +786,8 @@ func (d *UserDao) LockShared() *UserDao {
 	return &UserDao{M: d.M.LockShared()}
 }
 
-// Unscoped 启用/禁用软删除功能。
-func (d *UserDao) Unscoped() *UserDao {
+// Delete 用于数据的永久删除，被删除的数据不可恢复，请慎重使用。。
+func (d *UserDao) Delete() *UserDao {
 	return &UserDao{M: d.M.Unscoped()}
 }`
 
