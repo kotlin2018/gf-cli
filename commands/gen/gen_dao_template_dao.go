@@ -298,8 +298,17 @@ func (d *{TplTableNameCamelCase}Dao) LockShared() *{TplTableNameCamelCase}Dao {
 	return &{TplTableNameCamelCase}Dao{M: d.M.LockShared()}
 }
 
-// Unscoped 数据硬删除，被删除的数据不可恢复，请慎重使用。
-func (d *{TplTableNameCamelCase}Dao) Unscoped() *{TplTableNameCamelCase}Dao {
+// Delete 数据硬删除，被删除的数据不可恢复，请慎重使用。
+func (d *{TplTableNameCamelCase}Dao) Delete() *{TplTableNameCamelCase}Dao {
 	return &{TplTableNameCamelCase}Dao{M: d.M.Unscoped()}
+}
+
+// Remove 数据软删除
+func (d *UserDao) Remove(data ...interface{}) (sql.Result, error) {
+	res, err := d.M.Unscoped().Delete(data...)
+    if err !=nil {
+        return nil, err
+    }
+    return res, nil
 }
 `
