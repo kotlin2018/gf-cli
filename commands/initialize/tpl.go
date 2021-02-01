@@ -422,7 +422,7 @@ require (
 var readme = `# GoFrame Project
 
 https://goframe.org
-````
+
 ├── app          #业务逻辑层	 所有的业务逻辑存放目录。
 │   ├── api		 #业务接口	 接收/解析用户输入参数的入口/接口层。
 │   ├── dao		 #数据访问    数据库的访问操作，仅包含最基础的数据库CURD方法
@@ -440,7 +440,7 @@ https://goframe.org
 ├── template     #模板文件    MVC模板文件存放的目录
 ├── Dockerfile   #镜像描述    云原生时代用于编译生成Docker镜像的描述文件
 ├── go.mod		 #依赖管理    使用Go Module包管理的依赖描述文件
-└── main.go		 #入口文件    程序入口文件````
+└── main.go		 #入口文件    程序入口文件
 `
 
 var dao = `package internal
