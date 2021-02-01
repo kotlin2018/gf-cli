@@ -3,6 +3,22 @@
 
 `gf-cli`是一款强大的[GoFrame](https://goframe.org)开发工具链，使得我们开发基于`GoFrame`框架的项目更加便捷。
 
+## A、本地编译安装(在终端执行以下命令)
+````shell
+cd ${GOPATH}/pkg/mod/github.com/
+git clone https://hub.fastgit.org/kotlin2018/gf-cli.git
+# 或者 git clone https://github.com/kotlin2018/gf-cli.git
+cd gf-cli
+go get
+go build
+mv gf-cli gf 
+mv gf /usr/local/bin/
+````
+## B、使用试例
+````shell
+gf new test
+gf new app
+````
 ## 1. 安装
 
 ### 1). 预编译二进制
