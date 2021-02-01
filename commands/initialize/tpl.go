@@ -121,9 +121,9 @@ func init(){
 var router = `package router
 
 import (
-	v1 "{{.appName}}/app/api/v1"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
+	v1 "{{.appName}}/app/api/v1"
 	"time"
 )
 
@@ -171,9 +171,9 @@ func init() {
 var main = `package main
 
 import (
+	"github.com/gogf/gf/frame/g"
 	_ "{{.appName}}/boot"
 	_ "{{.appName}}/router"
-	"github.com/gogf/gf/frame/g"
 )
 
 func main() {
@@ -183,15 +183,15 @@ func main() {
 var base = `package v1
 
 import (
-	"{{.appName}}/app/api/request"
-	"{{.appName}}/app/model"
-	"{{.appName}}/app/service"
 	"errors"
 	jwt "github.com/gogf/gf-jwt"
 	"github.com/gogf/gf-jwt/example/api"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
 	"github.com/gogf/gf/util/gconv"
+	"{{.appName}}/app/api/request"
+	"{{.appName}}/app/model"
+	"{{.appName}}/app/service"
 	"time"
 )
 
@@ -353,13 +353,13 @@ type User internal.User
 var base2 = `package service
 
 import (
-	"{{.appName}}/app/api/request"
-	"{{.appName}}/app/dao"
-	"{{.appName}}/app/model"
 	"errors"
 	"github.com/gogf/gf/crypto/gmd5"
 	"github.com/gogf/gf/frame/g"
 	"github.com/mojocn/base64Captcha"
+	"{{.appName}}/app/api/request"
+	"{{.appName}}/app/dao"
+	"{{.appName}}/app/model"
 )
 
 var Store = base64Captcha.DefaultMemStore
@@ -422,7 +422,7 @@ require (
 var readme = `# GoFrame Project
 
 https://goframe.org
-
+````
 ├── app          #业务逻辑层	 所有的业务逻辑存放目录。
 │   ├── api		 #业务接口	 接收/解析用户输入参数的入口/接口层。
 │   ├── dao		 #数据访问    数据库的访问操作，仅包含最基础的数据库CURD方法
@@ -440,7 +440,7 @@ https://goframe.org
 ├── template     #模板文件    MVC模板文件存放的目录
 ├── Dockerfile   #镜像描述    云原生时代用于编译生成Docker镜像的描述文件
 ├── go.mod		 #依赖管理    使用Go Module包管理的依赖描述文件
-└── main.go		 #入口文件    程序入口文件
+└── main.go		 #入口文件    程序入口文件````
 `
 
 var dao = `package internal
@@ -465,7 +465,7 @@ type UserDao struct {
 
 // User列定义并存储表user的列名
 type userColumns struct {
-	Id             string //                                                          
+    Id             string //                                                          
     UserName       string // 用户名                                                   
     NickName       string // 用户昵称                                                 
     Password       string // 登陆密码                                                 
@@ -677,55 +677,10 @@ func (d *UserDao) Data(data ...interface{}) *UserDao {
 	return &UserDao{M: d.M.Data(data...)}
 }
 
-// Insert 使用"INSERT INTO"语句进行数据库写入，如果写入的数据中存在主键或者唯一索引时，返回失败，否则写入一条新数据。
-func (d *UserDao) Insert(data ...interface{}) (sql.Result, error) {
-	res, err := d.M.Insert(data...)
-    if err !=nil {
-        return nil, err
-    }
-    return res, nil
-}
-
-// 使用"INSERT INTO"语句进行数据库写入，如果写入的数据中存在主键或者唯一索引时，更新原有数据，否则写入一条新数据；
-func (d *UserDao) Save(data ...interface{}) (sql.Result, error) {
-	res, err := d.M.Save(data...)
-    if err !=nil {
-        return nil, err
-    }
-    return res, nil
-}
-
-// 使用"INSERT IGNORE INTO"语句进行数据库写入，如果写入的数据中存在主键或者唯一索引时，忽略错误继续执行写入。
-func (d *UserDao) InsertIgnore(data ...interface{}) (sql.Result, error) {
-	res, err := d.M.InsertIgnore(data...)
-    if err !=nil {
-        return nil, err
-    }
-    return res, nil
-}
-
-// 使用"REPLACE INTO"语句进行数据库写入，如果写入的数据中存在主键或者唯一索引时，会删除原有的记录，必定会写入一条新记录。
-func (d *UserDao) Replace(data ...interface{}) (sql.Result, error) {
-	res, err := d.M.Replace(data...)
-    if err !=nil {
-        return nil, err
-    }
-    return res, nil
-}
-
-// Update 用于数据的更新，往往需要结合Data及Where方法共同使用，也支持直接给定数据和条件参数。
-func (d *UserDao) Update(data ...interface{}) (sql.Result, error) {
-	res, err := d.M.Update(data...)
-    if err !=nil {
-        return nil, err
-    }
-    return res, nil
-}
-
 // Delete 用于数据的永久删除，被删除的数据不可恢复，请慎重使用。
 // 往往需要结合Where、Order、Limit等方法共同使用，也可以直接给Delete方法传递where参数。
 func (d *UserDao) Delete(data ...interface{}) (sql.Result, error) {
-	res, err := d.M.Delete(data...)
+	res, err := d.M.Unscoped().Delete(data...)
     if err !=nil {
         return nil, err
     }
@@ -789,9 +744,6 @@ func (d *UserDao) FindAll(where ...interface{}) ([]*model.User, error) {
 }
 
 // Scan 根据参数<pointer>的类型自动调用Struct或Structs函数
-// 如果<pointer>是*Struct/**Struct类型，则调用函数Struct。
-// 如果<pointer>的类型为*[]struct/*[]*struct，则调用函数Structs。
-// 注意，它返回sql.ErrNoRows，如果没有检索到任何记录，并且给定的指针不为空或nil。
 // 例如:
 // user  := new(User)
 // err   := dao.User.Where("id", 1).Scan(user)
