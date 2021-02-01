@@ -278,92 +278,108 @@ func generateEntityMessageDefinition(name string, fieldMap map[string]*gdb.Table
 	return buffer.String()
 }
 
-// generateMessageFieldForPbEntity generates and returns the message definition for specified field.
+// generateMessageFieldForPbEntity 生成并返回指定字段的消息定义.
 func generateMessageFieldForPbEntity(index int, field *gdb.TableField, req *generatePbEntityReq) []string {
-	var (
-		typeName   string
-		comment    string
-		jsonTagStr string
-	)
-	t, _ := gregex.ReplaceString(`\(.+\)`, "", field.Type)
-	t = gstr.Split(gstr.Trim(t), " ")[0]
-	t = gstr.ToLower(t)
-	switch t {
-	case "binary", "varbinary", "blob", "tinyblob", "mediumblob", "longblob":
-		typeName = "bytes"
+    var (
+        typeName   string
+        comment    string
+        jsonTagStr string
+    )
+    t, _ := gregex.ReplaceString(`\(.+\)`, "", field.Type)
+    t = gstr.Split(gstr.Trim(t), " ")[0]
+    t = gstr.ToLower(t)
+    switch t {
+    case "binary", "varbinary", "blob", "tinyblob", "mediumblob", "longblob","clob","nclob","bfile","image":
+        typeName = "[]byte"
 
-	case "bit", "int", "tinyint", "small_int", "smallint", "medium_int", "mediumint", "serial":
-		if gstr.ContainsI(field.Type, "unsigned") {
-			typeName = "uint32"
-		} else {
-			typeName = "int32"
-		}
+    case "tinyint":
+        if gstr.ContainsI(field.Type, "unsigned") {
+            typeName = "uint8"
+        } else {
+            typeName = "int8" //1字节
+        }
 
-	case "int8", "big_int", "bigint", "bigserial":
-		if gstr.ContainsI(field.Type, "unsigned") {
-			typeName = "uint64"
-		} else {
-			typeName = "int64"
-		}
+        // mysql 中 "smallint" 占2字节
+        // pgsql 中 "smallint" ，"smallserial" 都是占2字节
+    case "small_int", "smallint","smallserial":
+        if gstr.ContainsI(field.Type, "unsigned") {
+            typeName = "uint16"
+        } else {
+            typeName = "int16" // 2字节
+        }
 
-	case "real":
-		typeName = "float"
+    case "medium_int", "mediumint","serial","integer":
+        if gstr.ContainsI(field.Type, "unsigned") {
+            typeName = "uint32"
+        } else {
+            typeName = "int32"
+        }
 
-	case "float", "double", "decimal", "smallmoney":
-		typeName = "double"
+    case "big_int", "bigint", "bigserial":
+        if gstr.ContainsI(field.Type, "unsigned") {
+            typeName = "uint64"
+        } else {
+            typeName = "int64"
+        }
 
-	case "bool":
-		typeName = "bool"
+    case "float","real","float[(24)]","binary_float","smallmoney":
+        typeName = "float32" //4个字节
 
-	case "datetime", "timestamp", "date", "time":
-		typeName = "int64"
+    case "double","double precision", "decimal","numeric","dec" ,"money","float[(25)]","REAL","binary_double":
+        typeName = "float64" //8字节
 
-	default:
-		// Auto detecting type.
-		switch {
-		case strings.Contains(t, "int"):
-			typeName = "int"
-		case strings.Contains(t, "text") || strings.Contains(t, "char"):
-			typeName = "string"
-		case strings.Contains(t, "float") || strings.Contains(t, "double"):
-			typeName = "double"
-		case strings.Contains(t, "bool"):
-			typeName = "bool"
-		case strings.Contains(t, "binary") || strings.Contains(t, "blob"):
-			typeName = "bytes"
-		case strings.Contains(t, "date") || strings.Contains(t, "time"):
-			typeName = "int64"
-		default:
-			typeName = "string"
-		}
-	}
-	comment = gstr.ReplaceByArray(field.Comment, g.SliceStr{
-		"\n", " ",
-		"\r", " ",
-	})
-	comment = gstr.Trim(comment)
-	comment = gstr.Replace(comment, `\n`, " ")
-	comment, _ = gregex.ReplaceString(`\s{2,}`, ` `, comment)
-	if jsonTagName := formatCase(field.Name, req.JsonCase); jsonTagName != "" {
-		jsonTagStr = fmt.Sprintf(`[(gogoproto.jsontag) = "%s"]`, jsonTagName)
-		// beautiful indent.
-		if index < 10 {
-			// 3 spaces
-			jsonTagStr = "   " + jsonTagStr
-		} else if index < 100 {
-			// 2 spaces
-			jsonTagStr = "  " + jsonTagStr
-		} else {
-			// 1 spaces
-			jsonTagStr = " " + jsonTagStr
-		}
-	}
-	return []string{
-		"    #" + typeName,
-		" #" + formatCase(field.Name, req.NameCase),
-		" #= " + gconv.String(index) + jsonTagStr + ";",
-		" #" + fmt.Sprintf(`// %s`, comment),
-	}
+    case "bit","boolean","tinyint(1)","booleng":
+        typeName = "bool"
+
+    case "datetime", "timestamp", "date", "time":
+        typeName = "int64"
+
+    default:
+        // Auto detecting type.
+        switch {
+        case strings.Contains(t, "text")|| strings.Contains(t, "raw"):
+            typeName = "[]string"
+        case strings.Contains(t, "char"):
+            typeName = "string"
+        case strings.Contains(t, "REAL") || strings.Contains(t, "double"):
+            typeName = "float64"
+        case strings.Contains(t, "bool"):
+            typeName = "bool"
+        case strings.Contains(t, "binary") || strings.Contains(t, "lob"):
+            typeName = "[]byte"
+        case strings.Contains(t, "date") || strings.Contains(t, "time"):
+            typeName = "int64"
+        default:
+            typeName = "string"
+        }
+    }
+    comment = gstr.ReplaceByArray(field.Comment, g.SliceStr{
+        "\n", " ",
+        "\r", " ",
+    })
+    comment = gstr.Trim(comment)
+    comment = gstr.Replace(comment, `\n`, " ")
+    comment, _ = gregex.ReplaceString(`\s{2,}`, ` `, comment)
+    if jsonTagName := formatCase(field.Name, req.JsonCase); jsonTagName != "" {
+        jsonTagStr = fmt.Sprintf(`[(gogoproto.jsontag) = "%s"]`, jsonTagName)
+        // beautiful indent.
+        if index < 10 {
+            // 3 spaces
+            jsonTagStr = "   " + jsonTagStr
+        } else if index < 100 {
+            // 2 spaces
+            jsonTagStr = "  " + jsonTagStr
+        } else {
+            // 1 spaces
+            jsonTagStr = " " + jsonTagStr
+        }
+    }
+    return []string{
+        "    #" + typeName,
+        " #" + formatCase(field.Name, req.NameCase),
+        " #= " + gconv.String(index) + jsonTagStr + ";",
+        " #" + fmt.Sprintf(`// %s`, comment),
+    }
 }
 
 func getTplPbEntityContent(tplEntityPath string) string {
