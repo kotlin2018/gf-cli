@@ -423,6 +423,15 @@ var readme = `# GoFrame Project
 
 https://goframe.org
 
+#1、安装编译
+
+cd ${GOPATH}/pkg/mod/github.com/ && rm -rf gf-cli && git clone https://github.com/kotlin2018/gf-cli.git && cd gf-cli && go get && go build && mv gf-cli gf && sudo chmod 777 gf 
+
+mv gf /usr/local/bin/
+
+例如 : gf new appProject
+
+#2、项目结构
 ├── app          #业务逻辑层	 所有的业务逻辑存放目录。
 │   ├── api		 #业务接口	 接收/解析用户输入参数的入口/接口层。
 │   ├── dao		 #数据访问    数据库的访问操作，仅包含最基础的数据库CURD方法
