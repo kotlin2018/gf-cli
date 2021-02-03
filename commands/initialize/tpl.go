@@ -74,6 +74,8 @@ var toml = `# web服务器配置
 # Database.
 [database]
     link  = "mysql:root:root@tcp(127.0.0.1:3306)/copyele"
+    dsn = "root:root@tcp(127.0.0.1:3306)/copyele?charset=utf8mb4&parseTime=True&loc=Local" #gorm框架的数据库linkInfo
+    driver = "mysql"	#gorm框架的数据库驱动
     debug = true
     # Database logger.
     [database.logger]
@@ -121,8 +123,8 @@ func init(){
 var router = `package router
 
 import (
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/net/ghttp"
+	"github.com/kotlin2018/gf/frame/g"
+	"github.com/kotlin2018/gf/net/ghttp"
 	v1 "{{.appName}}/app/api/v1"
 	"time"
 )
@@ -171,7 +173,7 @@ func init() {
 var main = `package main
 
 import (
-	"github.com/gogf/gf/frame/g"
+	"github.com/kotlin2018/gf/frame/g"
 	_ "{{.appName}}/boot"
 	_ "{{.appName}}/router"
 )
@@ -184,11 +186,11 @@ var base = `package v1
 
 import (
 	"errors"
-	jwt "github.com/gogf/gf-jwt"
-	"github.com/gogf/gf-jwt/example/api"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/net/ghttp"
-	"github.com/gogf/gf/util/gconv"
+	jwt "github.com/kotlin2018/gf-jwt"
+	"github.com/kotlin2018/gf-jwt/example/api"
+	"github.com/kotlin2018/gf/frame/g"
+	"github.com/kotlin2018/gf/net/ghttp"
+	"github.com/kotlin2018/gf/util/gconv"
 	"{{.appName}}/app/api/request"
 	"{{.appName}}/app/model"
 	"{{.appName}}/app/service"
@@ -316,7 +318,7 @@ type Register struct {
 var user = `package internal
 
 import (
-    "github.com/gogf/gf/os/gtime"
+    "github.com/kotlin2018/gf/os/gtime"
 )
 
 // User is the golang structure for table user.
@@ -354,8 +356,8 @@ var base2 = `package service
 
 import (
 	"errors"
-	"github.com/gogf/gf/crypto/gmd5"
-	"github.com/gogf/gf/frame/g"
+	"github.com/kotlin2018/gf/crypto/gmd5"
+	"github.com/kotlin2018/gf/frame/g"
 	"github.com/mojocn/base64Captcha"
 	"{{.appName}}/app/api/request"
 	"{{.appName}}/app/dao"
@@ -413,8 +415,8 @@ var mod = `module {{.appName}}
 go 1.15
 
 require (
-	github.com/gogf/gf v1.15.1
-	github.com/gogf/gf-jwt v1.1.1
+	github.com/kotlin2018/gf v1.15.1
+	github.com/kotlin2018/gf-jwt v1.1.1
 	github.com/mojocn/base64Captcha v1.3.1
 )
 `
@@ -458,9 +460,9 @@ import (
 	"context"
 	"{{.appName}}/app/model"
 	"database/sql"
-	"github.com/gogf/gf/database/gdb"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/frame/gmvc"
+	"github.com/kotlin2018/gf/database/gdb"
+	"github.com/kotlin2018/gf/frame/g"
+	"github.com/kotlin2018/gf/frame/gmvc"
 	"time"
 )
 
