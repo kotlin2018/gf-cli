@@ -837,6 +837,14 @@ import (
 )
 var GormDB *gorm.DB
 
+// 初始化表
+func init(){
+	
+	GormDB.AutoMigrate(//这里填需要生成数据库表的model指针实例
+		// 例如: &model.User{}
+		)
+}
+
 func init(){
 	ok := false
 	dsn := g.Cfg("config.toml").GetString("database.dsn")
