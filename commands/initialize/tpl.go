@@ -176,7 +176,7 @@ import (
 	"github.com/gogf/gf/frame/g"
 	_ "{{.appName}}/boot"
 	_ "{{.appName}}/router"
-	"{{.appName}}/model"
+	"{{.appName}}/app/model"
 )
 
 func main() {
