@@ -176,10 +176,15 @@ import (
 	"github.com/gogf/gf/frame/g"
 	_ "{{.appName}}/boot"
 	_ "{{.appName}}/router"
+	"{{.appName}}/model"
 )
 
 func main() {
-	g.Server().Run()
+	err := model.Init()
+	if err == nil {
+		g.Server().Run()
+	}
+	g.Log().Errorf("请先初始化表")
 }`
 
 var base = `package v1
@@ -837,13 +842,13 @@ import (
 )
 var GormDB *gorm.DB
 
-// 初始化表,定义了可以映射成数据库表的model才可以打开此注释，否则会报错。
-//func init(){
-//
-//	GormDB.AutoMigrate(//这里填需要生成数据库表的model指针实例
-//		// 例如: &model.User{}
-//		)
-//}
+// 初始化表
+func Init()(err error){
+	err = GormDB.AutoMigrate( //这里填需要生成数据库表的model指针实例
+		// 例如: &User{},&Base{},
+	)
+	return
+}
 
 func init(){
 	ok := false
