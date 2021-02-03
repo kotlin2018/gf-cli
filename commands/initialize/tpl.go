@@ -837,13 +837,13 @@ import (
 )
 var GormDB *gorm.DB
 
-// 初始化表
-func init(){
-	
-	GormDB.AutoMigrate(//这里填需要生成数据库表的model指针实例
-		// 例如: &model.User{}
-		)
-}
+// 初始化表,定义了可以映射成数据库表的model才可以打开此注释，否则会报错。
+//func init(){
+//
+//	GormDB.AutoMigrate(//这里填需要生成数据库表的model指针实例
+//		// 例如: &model.User{}
+//		)
+//}
 
 func init(){
 	ok := false
