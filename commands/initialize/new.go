@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"github.com/gogf/gf-cli/library/mlog"
+	"github.com/kotlin2018/gf-cli/library/mlog"
 	"os"
 	"path"
 	"strings"
