@@ -818,3 +818,50 @@ type userDao struct {
 }`
 
 var packed = `package packed`
+
+var table = `package model
+
+import (
+	"github.com/gogf/gf/frame/g"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/driver/sqlserver"
+	"gorm.io/gorm"
+)
+var GormDB *gorm.DB
+
+func init(){
+	ok := false
+	dsn := g.Cfg("config.toml").GetString("database.dsn")
+	dbType  := g.Cfg("config.toml").GetString("database.driver")
+	if dbType  != "" {
+		ok = true
+	}
+	if ok {
+		switch dbType {
+		case "mysql":
+			dialect(mysql.Open(dsn))
+		case "pgsql":
+
+			dialect(postgres.Open(dsn))
+		case "sqlserver":
+			dialect(sqlserver.Open(dsn))
+		case "sqlite":
+			dialect(sqlite.Open("gorm.db"))
+		default:
+			dialect(mysql.Open(dsn))
+		}
+	}else {
+		g.Log().Error("请在config.toml文件中配置数据库")
+	}
+}
+
+func dialect(dialect gorm.Dialector){
+	db, err := gorm.Open(dialect, &gorm.Config{})
+	if err == nil {
+		GormDB = db
+	}else {
+		g.Log().Error("连接数据库失败")
+	}
+}`
