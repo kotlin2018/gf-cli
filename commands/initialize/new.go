@@ -61,7 +61,8 @@ func CreateApp(){
 	writeToFile(path.Join(appName, "config", "config.toml"), toml) // toml配置文件
 	writeToFile(path.Join(appName, "/app/api/request", "params.go"), params)
 	writeToFile(path.Join(appName, "/app/model/internal", "user.go"), user)
-
+	writeToFile(path.Join(appName, "/app/model", "table.go"), table)
+	
 	// 使用插值表达式
 	writeToFile(path.Join(appName, "/app/dao/", "user.go"), strings.Replace(daoUser, "{{.appName}}", appName, -1))
 	writeToFile(path.Join(appName, "/app/model", "user.go"), strings.Replace(user2, "{{.appName}}", appName, -1))
