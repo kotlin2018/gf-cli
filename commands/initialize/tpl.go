@@ -412,12 +412,18 @@ func Register(p *request.Register) (err error) {
 
 var mod = `module {{.appName}}
 
-go 1.15
+go 1.15 //当前环境的Golang版本
 
+// 引入的第三方库、框架、包
 require (
 	github.com/gogf/gf v1.15.1
 	github.com/gogf/gf-jwt v1.1.1
 	github.com/mojocn/base64Captcha v1.3.1
+	gorm.io/driver/mysql v1.0.4
+	gorm.io/driver/postgres v1.0.8
+	gorm.io/driver/sqlite v1.1.4
+	gorm.io/driver/sqlserver v1.0.6
+	gorm.io/gorm v1.20.12
 )
 `
 
