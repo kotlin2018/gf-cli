@@ -467,8 +467,8 @@ func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []str
 		case strings.Contains(t, "text") || strings.Contains(t, "char"):
 			typeName = "string"
 
-		case strings.Contains(t, "raw"):
-			typeName = "[]string"
+// 		case strings.Contains(t, "raw"):
+// 			typeName = "[]string"
 
 		case strings.Contains(t, "REAL") || strings.Contains(t, "double"):
 			typeName = "float64"
