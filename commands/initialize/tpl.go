@@ -178,7 +178,6 @@ import (
 
 func main() {
 	g.Server().Run()
-
 }`
 
 var base = `package v1
