@@ -388,7 +388,7 @@ func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []str
 
         // oracle 中 "long"类型
     case "long":
-        typeName = "[]string"
+        typeName = "string"
 
     case "tinyint":
         if gstr.ContainsI(field.Type, "unsigned") {
@@ -464,17 +464,11 @@ func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []str
     default:
         // Auto detecting type.
         switch {
-        case strings.Contains(t, "text") || strings.Contains(t, "raw"):
-            typeName = "[]string"
-
-        case strings.Contains(t, "char"):
+        case strings.Contains(t, "text") || strings.Contains(t, "raw") || strings.Contains(t, "char"):
             typeName = "string"
 
         case strings.Contains(t, "real") || strings.Contains(t, "double"):
             typeName = "float64"
-
-        //case strings.Contains(t, "bit"):
-        //  typeName = "bool"
 
         case strings.Contains(t, "binary") || strings.Contains(t, "lob"):
             typeName = "[]byte"
