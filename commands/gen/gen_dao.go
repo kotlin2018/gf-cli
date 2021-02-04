@@ -419,7 +419,7 @@ func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []str
 		}
 
 		// oracle中 "number" 表示数字类型
-	case "number","bigint":
+	case "number","BIGINT":
 		if gstr.ContainsI(field.Type, "unsigned") {
 			typeName = "uint"
 		} else {
