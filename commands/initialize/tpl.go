@@ -74,8 +74,6 @@ var toml = `# web服务器配置
 # Database.
 [database]
     link  = "mysql:root:root@tcp(127.0.0.1:3306)/copyele"
-    dsn = "root:root@tcp(127.0.0.1:3306)/copyele?charset=utf8mb4&parseTime=True&loc=Local" #gorm框架的数据库linkInfo
-    driver = "mysql"	#gorm框架的数据库驱动
     debug = true
     # Database logger.
     [database.logger]
@@ -176,15 +174,11 @@ import (
 	"github.com/gogf/gf/frame/g"
 	_ "{{.appName}}/boot"
 	_ "{{.appName}}/router"
-	"{{.appName}}/app/model"
 )
 
 func main() {
-	err := model.Init()
-	if err == nil {
-		g.Server().Run()
-	}
-	g.Log().Errorf("请先初始化表")
+	g.Server().Run()
+
 }`
 
 var base = `package v1
@@ -424,11 +418,6 @@ require (
 	github.com/gogf/gf v1.15.1
 	github.com/gogf/gf-jwt v1.1.1
 	github.com/mojocn/base64Captcha v1.3.1
-	gorm.io/driver/mysql v1.0.4
-	gorm.io/driver/postgres v1.0.8
-	gorm.io/driver/sqlite v1.1.4
-	gorm.io/driver/sqlserver v1.0.6
-	gorm.io/gorm v1.20.12
 )
 `
 
@@ -829,7 +818,7 @@ type userDao struct {
 }`
 
 var packed = `package packed`
-
+/*
 var table = `package model
 
 import (
@@ -883,4 +872,4 @@ func dialect(dialect gorm.Dialector){
 	}else {
 		g.Log().Error("连接数据库失败")
 	}
-}`
+}`*/
