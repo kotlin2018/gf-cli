@@ -390,13 +390,6 @@ func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []str
 	case "long":
 		typeName = "string"
 
-// 	case "tinyint":
-// 		if gstr.ContainsI(field.Type, "unsigned") {
-// 			typeName = "uint8"
-// 		} else {
-// 			typeName = "int8" //1字节
-// 		}
-
 		// mysql 中 "smallint" 占2字节
 		// pgsql 中 "smallint" ，"smallserial" 都是占2字节
 	case "small_int", "smallint","smallserial":
@@ -409,7 +402,7 @@ func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []str
 		// mysql 中 "mediumint" 占3字节,int == integer 占4字节
 		// pgsql 中 "integer" 占4字节
 		// oracle中 "integer" 存储整型，字节数不确定。
-	case "medium_int", "mediumint","serial","integer":
+	case "medium_int", "mediumint","serial","integer","int":
 		if gstr.ContainsI(field.Type, "unsigned") {
 			typeName = "uint32"
 		} else {
@@ -426,7 +419,7 @@ func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []str
 		}
 
 		// oracle中 "number" 表示数字类型
-	case "int","number":
+	case "number","bigint":
 		if gstr.ContainsI(field.Type, "unsigned") {
 			typeName = "uint"
 		} else {
@@ -470,14 +463,8 @@ func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []str
 		case strings.Contains(t, "text") || strings.Contains(t, "char"):
 			typeName = "string"
 
-// 		case strings.Contains(t, "raw"):
-// 			typeName = "[]string"
-
 		case strings.Contains(t, "REAL") || strings.Contains(t, "double"):
 			typeName = "float64"
-
-		//case strings.Contains(t, "bit"):
-		//	typeName = "bool"
 
 		case strings.Contains(t, "binary") || strings.Contains(t, "lob"):
 			typeName = "[]byte"
