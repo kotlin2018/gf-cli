@@ -373,128 +373,139 @@ func generateStructDefinitionForDao(structName string, fieldMap map[string]*gdb.
 	return buffer.String()
 }
 
-// generateStructFieldForDao generates and returns the attribute definition for specified field.
+// generateStructFieldForDao 生成并返回指定字段的属性定义
 func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []string {
-	var typeName, ormTag, jsonTag, comment string
-	t, _ := gregex.ReplaceString(`\(.+\)`, "", field.Type) // t表示:表字段的类型
-	t = gstr.Split(gstr.Trim(t), " ")[0]
-	t = gstr.ToLower(t) //表字段类型所有字母都转化为小写字母
-	switch t {
-		// oracle lob类型有: "clob","nclob","bfile","blob
-		// sqlServer 中 "image"最大容量 2GB
-	case "binary", "varbinary", "blob", "tinyblob", "mediumblob", "longblob","clob","nclob","bfile","image":
-		typeName = "[]byte"
+    var typeName, ormTag, jsonTag, comment string
+    t, _ := gregex.ReplaceString(`\(.+\)`, "", field.Type) // t表示:表字段的类型
+    t = gstr.Split(gstr.Trim(t), " ")[0]
+    t = gstr.ToLower(t) //表字段类型所有字母都转化为小写字母
+    switch t {
 
-		// oracle 中 "long"类型
-	//case "long":
-	//	typeName = "string"
+        // oracle lob类型有: "clob","nclob","bfile","blob
+        // sqlServer 中 "image"最大容量 2GB
+    case "binary", "varbinary", "blob", "tinyblob", "mediumblob", "longblob","clob","nclob","bfile","image":
+        typeName = "[]byte"
 
-		// mysql 中 "smallint" 占2字节
-		// pgsql 中 "smallint" ，"smallserial" 都是占2字节
-	case "small_int", "smallint","smallserial":
-		if gstr.ContainsI(field.Type, "unsigned") {
-			typeName = "uint16"
-		} else {
-			typeName = "int16" // 2字节
-		}
+        // oracle 中 "long"类型
+    case "long":
+        typeName = "[]string"
 
-		// mysql 中 "mediumint" 占3字节,int == integer 占4字节
-		// pgsql 中 "integer" 占4字节
-		// oracle中 "integer" 存储整型，字节数不确定。
-	case "medium_int", "mediumint","serial","integer","int":
-		if gstr.ContainsI(field.Type, "unsigned") {
-			typeName = "uint32"
-		} else {
-			typeName = "int32" // 4字节
-		}
+    case "tinyint":
+        if gstr.ContainsI(field.Type, "unsigned") {
+            typeName = "uint8"
+        } else {
+            typeName = "int8" //1字节
+        }
 
-		// mysql中 bigint 占8字节
-		// pgsql中 bigint ，"bigserial" 都是占8字节
-	case "big_int", "bigint", "bigserial":
-		if gstr.ContainsI(field.Type, "unsigned") {
-			typeName = "uint64"
-		} else {
-			typeName = "int64" // 8字节
-		}
+        // mysql 中 "smallint" 占2字节，"mediumint" 占3字节
+        // pgsql 中 "smallint" ，"smallserial" 都是占2字节
+    case "small_int", "smallint","smallserial", "medium_int","mediumint":
+        if gstr.ContainsI(field.Type, "unsigned") {
+            typeName = "uint16"
+        } else {
+            typeName = "int16" // 2字节
+        }
 
-		// oracle中 "number" 表示数字类型
-	case "number":
-		if gstr.ContainsI(field.Type, "unsigned") {
-			typeName = "uint"
-		} else {
-			typeName = "int" // 操作系统是32位，则int表示int32 ，OS是64位，则int表示int64
-		}
+        // mysql 中 int == integer 占4字节
+        // pgsql 中 "integer" 占4字节
+        // oracle中 "integer" 存储整型，字节数不确定。
+    case "serial","integer","int":
+        if gstr.ContainsI(field.Type, "unsigned") {
+            typeName = "uint32"
+        } else {
+            typeName = "int32" // 4字节
+        }
 
-	// mysql中 "float"占4字节
-	// pgsql中 "real" 占4字节
-	// oracle中 "BINARY_FLOAT" 表示32位单精度浮点数字数据类型
-	// sqlServer "smallmoney"(货币类型) 占4字节
-	case "float","real","float[(24)]","binary_float","smallmoney":
-		typeName = "float32" //4个字节
+        // mysql中 bigint 占8字节
+        // pgsql中 bigint ，"bigserial" 都是占8字节
+    case "big_int", "bigint", "bigserial":
+        if gstr.ContainsI(field.Type, "unsigned") {
+            typeName = "uint64"
+        } else {
+            typeName = "int64" // 8字节
+        }
 
-		// mysql中 real同 double, numeric == decimal == dec
-		// pgsql中 "decimal" "numeric" 占用字节数可变长，精度高。"double precision" "money"(货币类型)都是占8字节
-		// mssql中 "float[(n)]" n<=24 4字节，n>24 8字节
-		// sqlite中 "REAL" 占 8字节
-		// oracle中 "BINARY_DOUBLE" 表示64位双精度浮点数字数据类型
-	case "double","double precision", "decimal","numeric","dec" ,"money","float[(25)]","REAL","binary_double":
-		typeName = "float64" //8字节
+        // oracle中 "number" 表示数字类型
+    case "number":
+        if gstr.ContainsI(field.Type, "unsigned") {
+            typeName = "uint"
+        } else {
+            typeName = "int" // 操作系统是32位，则int表示int32 ，OS是64位，则int表示int64
+        }
 
-		// sqlite 中 "none" 直接以该数据所属的数据类型进行存储(任意类型)
-	case "none":
-		typeName = "*g.Var"
+    // mysql中 "float"占4字节
+    // pgsql中 "real" 占4字节
+    // oracle中 "BINARY_FLOAT" 表示32位单精度浮点数字数据类型
+    // sqlServer "smallmoney"(货币类型) 占4字节
+    case "float","real","float[(24)]","binary_float","smallmoney":
+        typeName = "float32" //4个字节
 
-	// mysql中 bool同 bit
-	// pgsql 中 boolean 占 1字节，表示: true/false
-	// mariadb 中使用 "booleng" 定义bool类型，使用"tinyint(1)"显示bool值
-	case "bit","boolean","tinyint(1)","booleng":
-		typeName = "bool"
-		
-	case "tinyint unsigned":
-		typeName = "byte"
-		
-	case "datetime", "timestamp", "date", "time":
-		typeName = "*gtime.Time"
+        // mysql中 real同 double, numeric == decimal == dec
+        // pgsql中 "decimal" "numeric" 占用字节数可变长，精度高。"double precision" "money"(货币类型)都是占8字节
+        // mssql中 "float[(n)]" n<=24 4字节，n>24 8字节
+        // sqlite中 "REAL" 占 8字节
+        // oracle中 "BINARY_DOUBLE" 表示64位双精度浮点数字数据类型
+    case "double","double precision", "decimal","numeric","dec" ,"money","float[(25)]","REAL","binary_double":
+        typeName = "float64" //8字节
 
-	default:
-		// Auto detecting type.
-		switch {
-		case strings.Contains(t, "text") || strings.Contains(t, "char"):
-			typeName = "string"
+        // sqlite 中 "none" 直接以该数据所属的数据类型进行存储(任意类型)
+    case "none":
+        typeName = "*g.Var"
 
-		case strings.Contains(t, "REAL") || strings.Contains(t, "double"):
-			typeName = "float64"
+    // mysql中 bool同 bit
+    // pgsql 中 boolean 占 1字节，表示: true/false
+    // mariadb 中使用 "booleng" 定义bool类型，使用"tinyint(1)"显示bool值
+    case "bit","boolean","tinyint(1)","booleng":
+        typeName = "bool"
 
-		case strings.Contains(t, "binary") || strings.Contains(t, "lob"):
-			typeName = "[]byte"
+    case "datetime", "timestamp", "date", "time":
+        typeName = "*gtime.Time"
 
-		case strings.Contains(t, "date") || strings.Contains(t, "time"):
-			typeName = "*gtime.Time"
-		default:
-			typeName = "string"
-		}
-	}
-	ormTag = field.Name
-	jsonTag = getJsonTagFromCase(field.Name, req.JsonCase)
-	if gstr.ContainsI(field.Key, "pri") {
-		ormTag += ",primary"
-	}
-	if gstr.ContainsI(field.Key, "uni") {
-		ormTag += ",unique"
-	}
-	comment = gstr.ReplaceByArray(field.Comment, g.SliceStr{
-		"\n", " ",
-		"\r", " ",
-	})
-	comment = gstr.Trim(comment)
-	comment = gstr.Replace(comment, `\n`, " ")
-	return []string{
-		"    #" + gstr.CaseCamel(field.Name),
-		" #" + typeName,
-		" #" + fmt.Sprintf("`"+`orm:"%s"`, ormTag),
-		" #" + fmt.Sprintf(`json:"%s"`+"`", jsonTag),
-		" #" + fmt.Sprintf(`// %s`, comment),
-	}
+    default:
+        // Auto detecting type.
+        switch {
+        case strings.Contains(t, "text") || strings.Contains(t, "raw"):
+            typeName = "[]string"
+
+        case strings.Contains(t, "char"):
+            typeName = "string"
+
+        case strings.Contains(t, "real") || strings.Contains(t, "double"):
+            typeName = "float64"
+
+        //case strings.Contains(t, "bit"):
+        //  typeName = "bool"
+
+        case strings.Contains(t, "binary") || strings.Contains(t, "lob"):
+            typeName = "[]byte"
+
+        case strings.Contains(t, "date") || strings.Contains(t, "time"):
+            typeName = "*gtime.Time"
+        default:
+            typeName = "string"
+        }
+    }
+    ormTag = field.Name
+    jsonTag = getJsonTagFromCase(field.Name, req.JsonCase)
+    if gstr.ContainsI(field.Key, "pri") {
+        ormTag += ",primary"
+    }
+    if gstr.ContainsI(field.Key, "uni") {
+        ormTag += ",unique"
+    }
+    comment = gstr.ReplaceByArray(field.Comment, g.SliceStr{
+        "\n", " ",
+        "\r", " ",
+    })
+    comment = gstr.Trim(comment)
+    comment = gstr.Replace(comment, `\n`, " ")
+    return []string{
+        "    #" + gstr.CaseCamel(field.Name),
+        " #" + typeName,
+        " #" + fmt.Sprintf("`"+`orm:"%s"`, ormTag),
+        " #" + fmt.Sprintf(`json:"%s"`+"`", jsonTag),
+        " #" + fmt.Sprintf(`// %s`, comment),
+    }
 }
 
 // generateColumnDefinitionForDao generates and returns the column names definition for specified table.
