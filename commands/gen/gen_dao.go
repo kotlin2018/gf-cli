@@ -390,12 +390,12 @@ func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []str
 	case "long":
 		typeName = "string"
 
-	case "tinyint":
-		if gstr.ContainsI(field.Type, "unsigned") {
-			typeName = "uint8"
-		} else {
-			typeName = "int8" //1字节
-		}
+// 	case "tinyint":
+// 		if gstr.ContainsI(field.Type, "unsigned") {
+// 			typeName = "uint8"
+// 		} else {
+// 			typeName = "int8" //1字节
+// 		}
 
 		// mysql 中 "smallint" 占2字节
 		// pgsql 中 "smallint" ，"smallserial" 都是占2字节
@@ -457,7 +457,10 @@ func generateStructFieldForDao(field *gdb.TableField, req *generateDaoReq) []str
 	// mariadb 中使用 "booleng" 定义bool类型，使用"tinyint(1)"显示bool值
 	case "bit","boolean","tinyint(1)","booleng":
 		typeName = "bool"
-
+		
+	case "tinyint unsigned":
+		typeName = "byte"
+		
 	case "datetime", "timestamp", "date", "time":
 		typeName = "*gtime.Time"
 
