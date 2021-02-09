@@ -304,7 +304,7 @@ func (d *{TplTableNameCamelCase}Dao) Delete() *{TplTableNameCamelCase}Dao {
 }
 
 // Remove 数据软删除
-func (d *UserDao) Remove(data ...interface{}) (sql.Result, error) {
+func (d *{TplTableNameCamelCase}Dao) Remove(data ...interface{}) (sql.Result, error) {
 	res, err := d.M.Unscoped().Delete(data...)
     if err !=nil {
         return nil, err
