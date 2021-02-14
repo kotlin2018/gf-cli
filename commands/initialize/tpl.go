@@ -93,10 +93,17 @@ var toml = `# web服务器配置
     prefix = ""      # 数据库对象及文件的前缀
     tables = ""		  # 当前数据库中需要执行代码生成的数据表。(如果为空，表示数据库的所有表都会生成)
 
-[jwt]
-    ExpiresAt   = 1             # 过期时间1天
-    RefreshAt   = 7             # 刷新时间7天 (24 * 7 = 168)
-    SigningKey  = "SliverHorn"  # 签名(密钥)
+#jwt-token配置，使用token时配置。token项目地址: https://github.com/kotlin2018/token.git
+[token]
+    ServerName = "gtoken"
+    CacheMode = 1  # 缓存模式 1 gcache 2 gredis
+    CacheKey = "GToken:"
+    Timeout = 0
+    MaxRefresh = 0
+    TokenDelimiter="_"
+    EncryptKey = "koi29a83idakguqjq29asd9asd8a7jhq"
+    AuthFailMsg = "登录超时，请重新登录"
+    MultiLogin = true   # 是否支持多端登录
 
 [captcha]
     KeyLong 	= 6
