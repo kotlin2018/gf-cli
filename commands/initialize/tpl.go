@@ -767,11 +767,7 @@ func (d *UserDao) LockUpdate() *UserDao {
 func (d *UserDao) LockShared() *UserDao {
 	return &UserDao{M: d.M.LockShared()}
 }
-
-// Delete 用于数据的永久删除，被删除的数据不可恢复，请慎重使用。。
-func (d *UserDao) Delete() *UserDao {
-	return &UserDao{M: d.M.Delete()}
-}`
+`
 
 var daoUser = `package dao
 
