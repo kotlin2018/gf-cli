@@ -541,7 +541,7 @@ func (d *UserDao) As(as string) *UserDao {
 }
 
 // TX 设置当前操作的事务。
-func (d *UserDao) TX(tx *gdb.TX) *UserDao {
+func (d *UserDao) TX(tx *orm.TX) *UserDao {
 	return &UserDao{M: d.M.TX(tx)}
 }
 
@@ -714,7 +714,7 @@ func (d *UserDao) Take(where ...interface{}) (*model.User, error) {
 // Find 对模型执行“SELECT FROM…”语句。它从表中检索记录并将结果返回为[]*model.User。如果没有使用表中给定的条件检索到记录，则返回nil。
 // Find 通过M.WherePri和M.Find检索并返回结果集。另见M.WherePri和M.Find。
 func (d *UserDao) Find(where ...interface{}) ([]*model.User, error) {
-	all, err := d.M.FindAll(where...)
+	all, err := d.M.Find(where...)
 	if err != nil {
 		return nil, err
 	}
@@ -770,7 +770,7 @@ func (d *UserDao) LockShared() *UserDao {
 
 // Delete 用于数据的永久删除，被删除的数据不可恢复，请慎重使用。。
 func (d *UserDao) Delete() *UserDao {
-	return &UserDao{M: d.M.Unscoped()}
+	return &UserDao{M: d.M.Delete()}
 }`
 
 var daoUser = `package dao
