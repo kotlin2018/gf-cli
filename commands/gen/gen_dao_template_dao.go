@@ -39,19 +39,18 @@ package internal
 import (
 	"context"
 	"database/sql"
-	"github.com/gogf/gf/database/gdb"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/frame/gmvc"
-	"time"
-
+	"github.com/kotlin2018/orm"
+	"github.com/kotlin2018/pkg/g"
+	"github.com/kotlin2018/pkg/gmvc"
 	"{TplImportPrefix}/model"
+	"time"
 )
 
 // {TplTableNameCamelCase}Dao is the manager for logic model data accessing
 // and custom defined data operations functions management.
 type {TplTableNameCamelCase}Dao struct {
 	gmvc.M
-	DB      gdb.DB
+	DB      orm.DB
 	Table   string
 	Columns {TplTableNameCamelLowerCase}Columns
 }
@@ -259,59 +258,29 @@ func (d *{TplTableNameCamelCase}Dao) Data(data ...interface{}) *{TplTableNameCam
 	return &{TplTableNameCamelCase}Dao{M: d.M.Data(data...)}
 }
 
-// All does "SELECT FROM ..." statement for the model.
+// Take retrieves one record from table and returns the result as *model.{TplTableNameCamelCase}.
+// It returns nil if there's no record retrieved with the given conditions from table.
+// Take retrieves and returns a single Record by M.WherePri and M.One.
+// Also see M.WherePri and M.one.
+func (d *{TplTableNameCamelCase}Dao) Take(where ...interface{}) (*model.{TplTableNameCamelCase}, error) {
+	one, err := d.M.Take(where...)
+	if err != nil {
+		return nil, err
+	}
+	var entity *model.{TplTableNameCamelCase}
+	if err = one.Struct(&entity); err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+	return entity, nil
+}
+
+// Find does "SELECT FROM ..." statement for the model.
 // It retrieves the records from table and returns the result as []*model.{TplTableNameCamelCase}.
 // It returns nil if there's no record retrieved with the given conditions from table.
-//
-// The optional parameter <where> is the same as the parameter of M.Where function,
-// see M.Where.
-func (d *{TplTableNameCamelCase}Dao) All(where ...interface{}) ([]*model.{TplTableNameCamelCase}, error) {
-	all, err := d.M.All(where...)
-	if err != nil {
-		return nil, err
-	}
-	var entities []*model.{TplTableNameCamelCase}
-	if err = all.Structs(&entities); err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-	return entities, nil
-}
-
-// One retrieves one record from table and returns the result as *model.{TplTableNameCamelCase}.
-// It returns nil if there's no record retrieved with the given conditions from table.
-//
-// The optional parameter <where> is the same as the parameter of M.Where function,
-// see M.Where.
-func (d *{TplTableNameCamelCase}Dao) One(where ...interface{}) (*model.{TplTableNameCamelCase}, error) {
-	one, err := d.M.One(where...)
-	if err != nil {
-		return nil, err
-	}
-	var entity *model.{TplTableNameCamelCase}
-	if err = one.Struct(&entity); err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-	return entity, nil
-}
-
-// FindOne retrieves and returns a single Record by M.WherePri and M.One.
-// Also see M.WherePri and M.One.
-func (d *{TplTableNameCamelCase}Dao) FindOne(where ...interface{}) (*model.{TplTableNameCamelCase}, error) {
-	one, err := d.M.FindOne(where...)
-	if err != nil {
-		return nil, err
-	}
-	var entity *model.{TplTableNameCamelCase}
-	if err = one.Struct(&entity); err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-	return entity, nil
-}
-
-// FindAll retrieves and returns Result by by M.WherePri and M.All.
+// FindAll retrieves and returns Result by by M.WherePri and M.all.
 // Also see M.WherePri and M.All.
-func (d *{TplTableNameCamelCase}Dao) FindAll(where ...interface{}) ([]*model.{TplTableNameCamelCase}, error) {
-	all, err := d.M.FindAll(where...)
+func (d *{TplTableNameCamelCase}Dao) Find(where ...interface{}) ([]*model.{TplTableNameCamelCase}, error) {
+	all, err := d.M.Find(where...)
 	if err != nil {
 		return nil, err
 	}
@@ -320,46 +289,6 @@ func (d *{TplTableNameCamelCase}Dao) FindAll(where ...interface{}) ([]*model.{Tp
 		return nil, err
 	}
 	return entities, nil
-}
-
-// Struct retrieves one record from table and converts it into given struct.
-// The parameter <pointer> should be type of *struct/**struct. If type **struct is given,
-// it can create the struct internally during converting.
-//
-// The optional parameter <where> is the same as the parameter of Model.Where function,
-// see Model.Where.
-//
-// Note that it returns sql.ErrNoRows if there's no record retrieved with the given conditions
-// from table and <pointer> is not nil.
-//
-// Eg:
-// user := new(User)
-// err  := dao.User.Where("id", 1).Struct(user)
-//
-// user := (*User)(nil)
-// err  := dao.User.Where("id", 1).Struct(&user)
-func (d *{TplTableNameCamelCase}Dao) Struct(pointer interface{}, where ...interface{}) error {
-	return d.M.Struct(pointer, where...)
-}
-
-// Structs retrieves records from table and converts them into given struct slice.
-// The parameter <pointer> should be type of *[]struct/*[]*struct. It can create and fill the struct
-// slice internally during converting.
-//
-// The optional parameter <where> is the same as the parameter of Model.Where function,
-// see Model.Where.
-//
-// Note that it returns sql.ErrNoRows if there's no record retrieved with the given conditions
-// from table and <pointer> is not empty.
-//
-// Eg:
-// users := ([]User)(nil)
-// err   := dao.User.Structs(&users)
-//
-// users := ([]*User)(nil)
-// err   := dao.User.Structs(&users)
-func (d *{TplTableNameCamelCase}Dao) Structs(pointer interface{}, where ...interface{}) error {
-	return d.M.Structs(pointer, where...)
 }
 
 // Scan automatically calls Struct or Structs function according to the type of parameter <pointer>.
