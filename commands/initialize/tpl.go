@@ -466,16 +466,16 @@ import (
 	"context"
 	"{{.appName}}/app/model"
 	"database/sql"
-	"github.com/gogf/gf/database/gdb"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/frame/gmvc"
+	"github.com/kotlin2018/orm"
+	"github.com/kotlin2018/pkg/g"
+	"github.com/kotlin2018/pkg/gmvc"
 	"time"
 )
 
 // UserDao 是用于逻辑模型数据访问和自定义数据操作功能管理的管理器
 type UserDao struct {
 	gmvc.M
-	DB      gdb.DB
+	DB      orm.DB
 	Table   string
 	Columns userColumns
 }
@@ -694,36 +694,11 @@ func (d *UserDao) Data(data ...interface{}) *UserDao {
 	return &UserDao{M: d.M.Data(data...)}
 }
 
-// Remove 数据的软删除。
-// 往往需要结合Where、Order、Limit等方法共同使用，也可以直接给Delete方法传递where参数。
-func (d *UserDao) Remove(data ...interface{}) (sql.Result, error) {
-	res, err := d.M.Unscoped().Delete(data...)
-    if err !=nil {
-        return nil, err
-    }
-    return res, nil
-}
-
-// All 对模型执行“SELECT FROM…”语句。
-// 它从表中检索记录并将结果返回为[]*model.User。如果没有使用表中给定的条件检索到记录，则返回nil。
-// 可选参数<where>与M.where函数的参数相同，请参见M.where。
-func (d *UserDao) All(where ...interface{}) ([]*model.User, error) {
-	all, err := d.M.All(where...)
-	if err != nil {
-		return nil, err
-	}
-	var entities []*model.User
-	if err = all.Structs(&entities); err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-	return entities, nil
-}
-
-// One 从表中检索一条记录，并将结果返回为*model.User。
+// Take 从表中检索一条记录，并将结果返回为*model.User。
 // 如果没有使用表中给定的条件检索到记录，则返回nil。
-// 可选参数<where>与M.where函数的参数相同，请参见M.where。
-func (d *UserDao) One(where ...interface{}) (*model.User, error) {
-	one, err := d.M.One(where...)
+// Take 通过M.WherePri和M.one检索并返回单个记录。另见M.WherePri和M.one。
+func (d *UserDao) Take(where ...interface{}) (*model.User, error) {
+	one, err := d.M.Take(where...)
 	if err != nil {
 		return nil, err
 	}
@@ -734,21 +709,9 @@ func (d *UserDao) One(where ...interface{}) (*model.User, error) {
 	return entity, nil
 }
 
-// FindOne 通过M.WherePri和M.One检索并返回单个记录。另见M.WherePri和M.One。
-func (d *UserDao) FindOne(where ...interface{}) (*model.User, error) {
-	one, err := d.M.FindOne(where...)
-	if err != nil {
-		return nil, err
-	}
-	var entity *model.User
-	if err = one.Struct(&entity); err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-	return entity, nil
-}
-
-// FindAll 通过M.WherePri和M.All检索并返回结果集。另见M.WherePri和M.All。
-func (d *UserDao) FindAll(where ...interface{}) ([]*model.User, error) {
+// Find 对模型执行“SELECT FROM…”语句。它从表中检索记录并将结果返回为[]*model.User。如果没有使用表中给定的条件检索到记录，则返回nil。
+// Find 通过M.WherePri和M.Find检索并返回结果集。另见M.WherePri和M.Find。
+func (d *UserDao) Find(where ...interface{}) ([]*model.User, error) {
 	all, err := d.M.FindAll(where...)
 	if err != nil {
 		return nil, err
@@ -779,7 +742,7 @@ func (d *UserDao) Scan(pointer interface{}, where ...interface{}) error {
 
 // Chunk 使用给定的大小和回调函数迭代表。
 func (d *UserDao) Chunk(limit int, callback func(entities []*model.User, err error) bool) {
-	d.M.Chunk(limit, func(result gdb.Result, err error) bool {
+	d.M.Chunk(limit, func(result orm.Result, err error) bool {
 		var entities []*model.User
 		err = result.Structs(&entities)
 		if err == sql.ErrNoRows {
