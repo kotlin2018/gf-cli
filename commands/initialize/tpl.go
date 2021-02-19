@@ -421,8 +421,10 @@ go 1.15 //当前环境的Golang版本
 
 // 引入的第三方库、框架、包
 require (
-	github.com/gogf/gf v1.15.1
+	github.com/gogf/gf v1.15.3
 	github.com/gogf/gf-jwt v1.1.1
+	github.com/kotlin2018/orm v0.1.1
+	github.com/kotlin2018/pkg v0.1.5
 	github.com/mojocn/base64Captcha v1.3.1
 )
 `
