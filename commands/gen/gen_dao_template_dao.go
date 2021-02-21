@@ -38,18 +38,18 @@ package internal
 
 import (
 	"context"
-	"{TplImportPrefix}/model"
 	"database/sql"
-	"github.com/gogf/gf/database/gdb"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/frame/gmvc"
+	"{TplImportPrefix}/model"
+	"github.com/kotlin2018/orm"
+	"github.com/kotlin2018/pkg/g"
+	"github.com/kotlin2018/pkg/gmvc"
 	"time"
 )
 
 // {TplTableNameCamelCase}Dao 是用于逻辑模型数据访问和自定义数据操作功能管理的管理器
 type {TplTableNameCamelCase}Dao struct {
 	gmvc.M
-	DB      gdb.DB
+	DB      orm.DB
 	Table   string
 	Columns {TplTableNameCamelLowerCase}Columns
 }
@@ -82,7 +82,7 @@ func (d *{TplTableNameCamelCase}Dao) As(as string) *{TplTableNameCamelCase}Dao {
 }
 
 // TX 设置当前操作的事务。
-func (d *{TplTableNameCamelCase}Dao) TX(tx *gdb.TX) *{TplTableNameCamelCase}Dao {
+func (d *{TplTableNameCamelCase}Dao) TX(tx *orm.TX) *{TplTableNameCamelCase}Dao {
 	return &{TplTableNameCamelCase}Dao{M: d.M.TX(tx)}
 }
 
@@ -216,24 +216,10 @@ func (d *{TplTableNameCamelCase}Dao) Data(data ...interface{}) *{TplTableNameCam
 	return &{TplTableNameCamelCase}Dao{M: d.M.Data(data...)}
 }
 
-// All 对模型执行“SELECT FROM…”语句，并将结果返回为[]*model.{TplTableNameCamelCase}
-// 如果没有使用表中给定的条件检索到记录，则返回nil。
-func (d *{TplTableNameCamelCase}Dao) All(where ...interface{}) ([]*model.{TplTableNameCamelCase}, error) {
-	all, err := d.M.All(where...)
-	if err != nil {
-		return nil, err
-	}
-	var entities []*model.{TplTableNameCamelCase}
-	if err = all.Structs(&entities); err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-	return entities, nil
-}
-
-// One 从表中检索一条记录，并将结果返回为*model.{TplTableNameCamelCase}。
-// 如果没有使用表中给定的条件检索到记录，则返回nil。
-func (d *{TplTableNameCamelCase}Dao) One(where ...interface{}) (*model.{TplTableNameCamelCase}, error) {
-	one, err := d.M.One(where...)
+// Take 通过M.WherePri和M.One检索并返回单个记录，并将结果返回为*model.{TplTableNameCamelCase}。
+// 如果没有使用表中给定的条件检索到记录，则返回nil。另见M.WherePri和M.One。
+func (d *{TplTableNameCamelCase}Dao) Take(where ...interface{}) (*model.{TplTableNameCamelCase}, error) {
+	one, err := d.M.Take(where...)
 	if err != nil {
 		return nil, err
 	}
@@ -244,22 +230,10 @@ func (d *{TplTableNameCamelCase}Dao) One(where ...interface{}) (*model.{TplTable
 	return entity, nil
 }
 
-// FindOne 通过M.WherePri和M.One检索并返回单个记录。另见M.WherePri和M.One。
-func (d *{TplTableNameCamelCase}Dao) FindOne(where ...interface{}) (*model.{TplTableNameCamelCase}, error) {
-	one, err := d.M.FindOne(where...)
-	if err != nil {
-		return nil, err
-	}
-	var entity *model.{TplTableNameCamelCase}
-	if err = one.Struct(&entity); err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-	return entity, nil
-}
-
-// FindAll 通过M.WherePri和M.All检索并返回结果集。另见M.WherePri和M.All。
-func (d *{TplTableNameCamelCase}Dao) FindAll(where ...interface{}) ([]*model.{TplTableNameCamelCase}, error) {
-	all, err := d.M.FindAll(where...)
+// Find 对模型执行“SELECT FROM…”语句，并将结果返回为[]*model.{TplTableNameCamelCase}
+// 通过M.WherePri和M.All检索并返回结果集。另见M.WherePri和M.All。
+func (d *{TplTableNameCamelCase}Dao) Find(where ...interface{}) ([]*model.{TplTableNameCamelCase}, error) {
+	all, err := d.M.Find(where...)
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +252,7 @@ func (d *{TplTableNameCamelCase}Dao) Scan(pointer interface{}, where ...interfac
 
 // Chunk 使用给定的大小和回调函数迭代表。
 func (d *{TplTableNameCamelCase}Dao) Chunk(limit int, callback func(entities []*model.{TplTableNameCamelCase}, err error) bool) {
-	d.M.Chunk(limit, func(result gdb.Result, err error) bool {
+	d.M.Chunk(limit, func(result orm.Result, err error) bool {
 		var entities []*model.{TplTableNameCamelCase}
 		err = result.Structs(&entities)
 		if err == sql.ErrNoRows {
@@ -299,16 +273,7 @@ func (d *{TplTableNameCamelCase}Dao) LockShared() *{TplTableNameCamelCase}Dao {
 }
 
 // Delete 数据硬删除，被删除的数据不可恢复，请慎重使用。
-func (d *{TplTableNameCamelCase}Dao) Delete() *{TplTableNameCamelCase}Dao {
+func (d *{TplTableNameCamelCase}Dao) Unscoped() *{TplTableNameCamelCase}Dao {
 	return &{TplTableNameCamelCase}Dao{M: d.M.Unscoped()}
-}
-
-// Remove 数据软删除
-func (d *{TplTableNameCamelCase}Dao) Remove(data ...interface{}) (sql.Result, error) {
-	res, err := d.M.Unscoped().Delete(data...)
-    if err !=nil {
-        return nil, err
-    }
-    return res, nil
 }
 `
